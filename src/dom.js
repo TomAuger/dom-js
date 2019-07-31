@@ -73,7 +73,7 @@ DOM.Animator = function(_framerate = 60){
       numFrames++;
 
       if (timestamp > nextReportMillis){
-        console.log(deltaSum / numFrames);
+        //console.log("Average framerate: ", deltaSum / numFrames);
         nextReportMillis = timestamp + REPORT_MILLIS;
       }
     }
@@ -116,13 +116,36 @@ DOM.Animator = function(_framerate = 60){
 // @TODO add NS to property application
 var SVG = {};
 
-// Create a new SVG container element, adding in a list of SVG child shapes
-SVG.new  = function(width = 100, height = 100, shapes = [], opts = {}){
+
+/**
+ * Create a new SVG container element, adding in a list of SVG child shapes
+ *
+ * @param {SVGShape[]} shapes - One or more SVG shapes (created with SVG.shape())
+ * @param {Object} [opts] Hash of property:value pairs. Gets applied to the generated SVG
+ * @param {int|int[]} [viewBox] Optional viewbox dimensions. [100], [100, 200], [10, 10, 100, 200] are all valid
+ *
+ * @return SVGElement
+ */
+SVG.new  = function(shapes = [], opts = {}, viewBox = []){
   let s = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-  s.setAttribute("viewBox", `0 0 ${width} ${height}`);
 
   for (let el of shapes){
     s.appendChild(el);
+  }
+
+  if (viewBox && viewBox.length){
+    let x1 = y1 = 0;
+    let width, height;
+
+    switch(viewBox.length){
+      case 1 : width = height = parseInt(viewBox); break;
+      case 2 : [width, height] = viewBox; break;
+      case 4 : [x1, y1, width, height] = viewBox; break;
+    }
+
+    if (width && height){
+      s.setAttribute("viewBox", `${x1} ${y1} ${width} ${height}`);
+    }
   }
 
   return DOM.apply(s, opts);

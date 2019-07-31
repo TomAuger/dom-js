@@ -1,0 +1,35 @@
+html, body {
+  width: 100%; height:100%;
+  margin: 0; padding: 0;
+}
+
+body {
+  font-family: "Helvetica Neue", sans-serif;
+  font-weight: 300;
+  font-size: 12px;
+  font-size: calc(12px + 1vw);
+
+  background: #333;
+  color: #ddd;
+}
+
+main {
+  width : 100%;
+  height : 100%;
+}
+
+h1 {
+  font-size: 24px;
+  font-size: calc(24px + 5vw);
+  font-weight: 100;
+}
+
+h2 {
+  font-size: 18px;
+  font-size: calc(18px + 2.5vw);
+  color: #ccc;
+}
+
+b, strong {
+  font-weight: 500;
+}
