@@ -244,7 +244,7 @@ SVG.shape = function(type = "rect", opts = {}){
 }
 
 /**
- * Return a new SVG group, containing a bunch of SVG child shapes (created with SGV.shape())
+ * Return a new SVG group, containing a bunch of SVG child shapes (created with SVG.shape())
  * @param  {SVGElement[]}  [shapes=[]] An array of SVGElements to be added to the group
  * @param  {Object} [opts={}]   Attribute name-value pairs to be applied to the group
  * @return {[type]}             SVGGElement
