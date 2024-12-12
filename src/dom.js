@@ -1,9 +1,10 @@
 // dom.js - super lightweight utility functions for working with the DOM and SVGs
-// (c) Tom Auger, 2019
-// V01.4
+// (c) Tom Auger, 2019, 2025
+// V01.5 - Added components and more examples.
 
 // =============
-var DOM = {}
+const DOM = {}
+
 
 /**
  * Create a new DOM (HTML) element, passing any number of
@@ -255,4 +256,112 @@ SVG.group = function(shapes = [], opts = {}){
     g.appendChild(el);
   }
   return DOM.apply(g, opts);
+}
+
+
+// COMPONENTS ==================================================
+DOM.components = false;
+
+if (window.customElements) {
+  DOM.components = true;
+
+  class DOMComponent extends HTMLElement {
+    static observedAttributes = ["type"];
+
+    static #cachedComponents = {};
+    static #componentData = {};
+    static #COMPONENT_DIR = "components";
+
+    constructor() {
+      super();
+    }
+
+    static set componentDir(dir){
+      DOMComponent.#COMPONENT_DIR = dir;
+    }
+
+    static bindData(componentData = {}){
+      DOMComponent.#componentData = componentData;
+    }
+
+    attributeChangedCallback(name, oldValue, newValue) {
+      if ("type" === name) {
+        this.fetchComponent(newValue)
+            .then(this.processComponent.bind(this));
+      } else {
+        // Process custom attribute
+      }
+    }
+
+    fetchComponent(componentName) {
+      console.debug(`Requesting DOMComponent "${componentName}"`);
+      const result = DOMComponent.#cachedComponents[componentName];
+
+      if (result) {
+        // Is result a Promise (ie: already in flight)
+        if (result.then) {
+          console.debug(`Request already in flight for DOMComponent ${componentName}`);
+          return result;
+        }
+        // We have a result and it's resolved, so wrap it in another Promise
+        else {
+          console.debug(`Returning cached copy for DOMComponent ${componentName}`);
+          return new Promise((resolve, _) => resolve(result));
+        }
+      }
+      // Never been fetched before
+      else {
+        const templateURIBase = `${DOMComponent.#COMPONENT_DIR}/${componentName}`;
+
+        console.debug(`Fetching DOMComponent ${componentName} from "${templateURIBase}.html"`);
+        const htmlPromise = fetch(templateURIBase + ".html")
+            .then(response => {
+              if (!response.ok) {
+                throw new DOMException(`The requested DOMComponent is not found at ${HTMLTemplateURI}`);
+              }
+              return response.text();
+            });
+
+        // console.debug(`Fetching JavaScript for ${componentName} from "${templateURIBase}.js"`);
+        // const jsPromise = fetch(templateURIBase + ".js")
+        //     .then(response => {
+        //       if (response.ok) {
+        //         return response.text();
+        //       }
+        //     });
+        //
+        // console.debug(`Fetching Stylesheet for ${componentName} from "${templateURIBase}.css"`);
+        // const cssPromise = fetch(templateURIBase + ".css")
+        //     .then(response => {
+        //       if (response.ok) {
+        //         return response.text();
+        //       }
+        //     });
+
+        const loadPromises = Promise.all([htmlPromise])//, jsPromise, cssPromise])
+            .then(result => {
+              DOMComponent.#cachedComponents[componentName] = result[0];
+              return result;
+            });
+
+        // Store the promise which will self-convert to a result once processed
+        DOMComponent.#cachedComponents[componentName] = loadPromises;
+
+        return loadPromises;
+      }
+    }
+
+    processComponent(result) {
+      console.debug(`Processing DOMComponent result:`, result);
+      this.innerHTML = result;
+    }
+  }
+
+  DOM.initComponents = function (componentsDir, componentList = {}) {
+    DOMComponent.componentDir = componentsDir;
+    window.customElements.define("dom-component", DOMComponent);
+
+    return {};
+  }
+
 }

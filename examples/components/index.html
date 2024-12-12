@@ -3,16 +3,24 @@
 
 <head>
   <meta charset="utf-8">
-  <title>Dom-JS Example</title>
+  <title>Dom-JS Component Example</title>
 
   <link rel="stylesheet" href="style/styles.css?v=1.0">
 </head>
 
 <body>
-  <main></main>
+  <h1>DOM.js Components Example</h1>
+  <div id="player-1" class="player-section">
+    <h2>Player 1</h2>
+    <dom-component type="player-armoury"></dom-component>
+  </div>
 
-  <script src="../dist/dom.min.js"></script>
-  <!-- <script src="../src/dom.js"></script> -->
+  <div id="player-2" class="player-section">
+    <h2>Player 2</h2>
+    <dom-component type="player-armoury"></dom-component>
+  </div>
+
+  <script src="../../dist/dom.min.js"></script>
   <script src="js/main.js"></script>
 </body>
 </html>
