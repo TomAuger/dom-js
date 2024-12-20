@@ -1,9 +1,35 @@
-// dom.js - super lightweight utility functions for working with the DOM and SVGs
-// (c) Tom Auger, 2019
-// V01.4
+// DOM.js - super lightweight utility functions for working with the DOM and SVGs
+// (c) Tom Auger, 2024
+// V02.0 - WARNING: 2.0 breaks all previous versions because I've renamed DOM.el() to DOM.new() and now DOM.el() does something else
+
 
 // =============
-var DOM = {}
+window.DOM = function(element){
+  if (! element._domified) {
+    element ??= {};
+    element._domified = true;
+    element.on = (ev, fn, bb) => { element.addEventListener(ev, fn, bb); return element };
+    element.off = (ev, fn, bb) => { element.removeEventListener(ev, fn, bb); return element };
+    element.el = selector => DOM.el(selector, element);
+    element.els = selector => DOM.els(selector, element);
+    element.append = (...elements) => DOM.append(element, elements);
+    element.apply = (atts) => DOM.apply(element, atts);
+  }
+
+  return element;
+}
+
+DOM.id = function(elementID){
+  return DOM(document.getElementById(elementID));
+}
+
+DOM.el = function(selector, parent = document){
+  return DOM(parent.querySelector(selector));
+}
+
+DOM.els = function(selector, parent = document){
+  return DOM(parent.querySelectorAll(selector));
+}
 
 /**
  * Create a new DOM (HTML) element, passing any number of
@@ -11,17 +37,17 @@ var DOM = {}
  *
  * @param  {String} [type="div"] HTML tag name
  * @param  {Object} [opts={}]    Attribute name-value pairs
- * @return {[type]}              DOM element
+ * @return {HTMLElement}         DOM element
  *
  * @example
  *
- *  DOM.el();
+ *  DOM.new();
  *  > <div></div>
  *
- *  DOM.el("ul", { class : "events" });
+ *  DOM.new("ul", { class : "events" });
  *  > <ul class="events"></ul>
  *
- *  DOM.el("img", {
+ *  DOM.new("img", {
  *    width : 100,
  *    height : 100,
  *    src : "assets/logo.png",
@@ -29,9 +55,9 @@ var DOM = {}
  *  });
  *  > <img width="100" height="100" src="assets/logo.png" onload="function reveal(event){}">
  */
-DOM.el = function(type = "div", opts = {}){
-    let e = document.createElement(type);
-    return DOM.apply(e, opts);
+DOM.new = function(type = "div", opts = {}){
+    let e = DOM(document.createElement(type));
+    return e.apply(opts);
 };
 
 /**
@@ -49,10 +75,19 @@ DOM.el = function(type = "div", opts = {}){
  *  });
  */
 DOM.apply = function(el, atts = {}){
+  let innerText = "";
+
   for (let att in atts){
-    el.setAttribute(att, atts[att]);
+    if ("content" == att){
+      innerText = atts[att];
+    } else {
+      el.setAttribute(att, atts[att]);
+    }
+
+    if (innerText) el.innerText = innerText;
   }
-  return el;
+
+  return DOM(el);
 }
 
 /**
@@ -71,7 +106,14 @@ DOM.apply = function(el, atts = {}){
  */
 DOM.empty = function(node){
   while(node.childNodes.length) node.firstChild.remove();
-  return node;
+  return DOM(node);
+}
+
+
+DOM.append = function(parent = document, ...elements){
+  elements = [elements].flat(Infinity); // accept array
+  elements.forEach(el => {console.log(el);parent.appendChild(el)});
+  return DOM(parent);
 }
 
 /**
@@ -195,7 +237,7 @@ DOM.Animator = function(_framerate = 60){
 
 // Ultra lightweight SVG creation library.
 // @TODO add NS to property application
-var SVG = {};
+window.SVG = {};
 
 
 /**
