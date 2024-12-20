@@ -14,6 +14,7 @@ window.DOM = function(element){
     element.els = selector => DOM.els(selector, element);
     element.append = (...elements) => DOM.append(element, elements);
     element.apply = (atts) => DOM.apply(element, atts);
+    //element.bind = (atts) => DOM.bind(element, atts);
   }
 
   return element;
@@ -110,11 +111,43 @@ DOM.empty = function(node){
 }
 
 
-DOM.append = function(parent = document, ...elements){
+DOM.append = function(parent = document.body, ...elements){
   elements = [elements].flat(Infinity); // accept array
   elements.forEach(el => {console.log(el);parent.appendChild(el)});
   return DOM(parent);
 }
+
+DOM._proxies = [];
+// DOM.watch = function(initialValue = null){
+//   let
+// }
+
+DOM.State = function(initialProps = {}){
+  let proxy = new Proxy(initialProps, {
+    get(target, prop, receiver){
+      console.log("getting", target, prop, receiver, this);
+      return Reflect.get(...arguments);
+    },
+    set(target, prop, value, receiver){
+      console.log("setting", ...arguments);
+      return Reflect.set(...arguments);
+    }
+  });
+
+  //proxy.bind = function()
+
+  return proxy;
+}
+
+
+// DOM.bind = function(prop, target){
+//   let proxy = new Proxy(prop, {
+//     get(target, prop, receiver){
+//       console.log(target, prop, receiver);
+//       return Reflect.get(...arguments);
+//     }
+//   })
+// }
 
 /**
  * Extremely lightweight mini moustache/handlebars. Expands {{varname}} from vars object.
