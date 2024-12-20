@@ -107,7 +107,7 @@ DOM.expand = function(template, vars){
  * they fire to avoid a very rapid number of similar events.
  * @param  {Function} callback        The function you want to "debounce"
  * @param  {Number}   [delayTime=300] Optional delay before the callback function is executed
- * @return {[type]}                   Debounced function
+ * @return {Function}                   Debounced function
  *
  * @example
  *
