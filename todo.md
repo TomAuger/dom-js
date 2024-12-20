@@ -7,3 +7,5 @@
     - maybe it returns the parent element
     
 - [ ] add Javadoc to new functions
+
+- [ ] update README with new tutorials and fix old ones for 2.0
